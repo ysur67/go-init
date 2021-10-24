@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"os"
 
@@ -57,9 +56,9 @@ func main() {
 		panic(err.Error())
 	}
 	usersData := []User{}
-	getJsonResponse(os.Getenv("user-source"), &usersData)
 	postsData := []Post{}
-	getJsonResponse(os.Getenv("post-source"), &postsData)
-	fmt.Println(usersData)
-	fmt.Println(postsData)
+	var usersUrl = os.Getenv("user-source")
+	var postsUrl = os.Getenv("post-source")
+	getJsonResponse(usersUrl, &usersData)
+	getJsonResponse(postsUrl, &postsData)
 }
