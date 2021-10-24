@@ -32,6 +32,13 @@ type User struct {
 	Website  string  `json:"website"`
 }
 
+type Post struct {
+	UserId int    `json:"userId"`
+	Id     int    `json:"id"`
+	Title  string `json:"title"`
+	Body   string `json:"body"`
+}
+
 func getJsonResponse(url string, output interface{}) {
 	request, err := http.Get(url)
 	if err != nil {
@@ -51,5 +58,8 @@ func main() {
 	}
 	usersData := []User{}
 	getJsonResponse(os.Getenv("user-source"), &usersData)
+	postsData := []Post{}
+	getJsonResponse(os.Getenv("post-source"), &postsData)
 	fmt.Println(usersData)
+	fmt.Println(postsData)
 }
