@@ -56,16 +56,24 @@ func getJsonResponse(url string, output interface{}) {
 func getUserInsertQuery(user *User) string {
 	return fmt.Sprintf("INSERT INTO users (id, name, username, "+
 		"email, street, suite, city, zipcode, phone, website)"+
-		"VALUES (%d, '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')",
+		"VALUES (%d, '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')"+
+		"ON CONFLICT(id) DO NOTHING",
 		user.Id, user.Name, user.Username, user.Email, user.Address.Street,
 		user.Address.Suite, user.Address.City, user.Address.Zipcode,
 		user.Phone, user.Website)
 }
 
+func getPostInsertQuery(post *Post) string {
+	return fmt.Sprintf("INSERT INTO post (id, userid, title, body) "+
+		"VALUES (%d, %d, '%s', '%s')"+
+		"ON CONFLICT(id) DO NOTHING",
+		post.Id, post.UserId, post.Title, post.Body)
+}
+
 func executeSqlQuery(connection *sql.DB, query string) {
 	_, err := connection.Exec(query)
 	if err != nil {
-		panic(err.Error())
+		panic(err)
 	}
 }
 
@@ -101,5 +109,9 @@ func main() {
 	for i := 0; i < len(usersData); i++ {
 		var userInsertQuery = getUserInsertQuery(&usersData[i])
 		executeSqlQuery(connection, userInsertQuery)
+	}
+	for i := 0; i < len(postsData); i++ {
+		var postInsertQuery = getPostInsertQuery(&postsData[i])
+		executeSqlQuery(connection, postInsertQuery)
 	}
 }
