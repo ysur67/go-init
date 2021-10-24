@@ -53,6 +53,22 @@ func getJsonResponse(url string, output interface{}) {
 	}
 }
 
+func getUserInsertQuery(user *User) string {
+	return fmt.Sprintf("INSERT INTO users (id, name, username, "+
+		"email, street, suite, city, zipcode, phone, website)"+
+		"VALUES (%d, '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')",
+		user.Id, user.Name, user.Username, user.Email, user.Address.Street,
+		user.Address.Suite, user.Address.City, user.Address.Zipcode,
+		user.Phone, user.Website)
+}
+
+func executeSqlQuery(connection *sql.DB, query string) {
+	_, err := connection.Exec(query)
+	if err != nil {
+		panic(err.Error())
+	}
+}
+
 func main() {
 	err := godotenv.Load(".env")
 	if err != nil {
@@ -69,11 +85,10 @@ func main() {
 	user := os.Getenv("database-user-username")
 	password := os.Getenv("database-user-password")
 	dbname := os.Getenv("database-name")
-
-	connectionString := fmt.Sprintf("host=%s port=%s user=%s "+s
+	connectionString := fmt.Sprintf("host=%s port=%s user=%s "+
 		"password=%s dbname=%s sslmode=disable",
 		host, port, user, password, dbname)
-	fmt.Println(connectionString)
+
 	connection, err := sql.Open("postgres", connectionString)
 	if err != nil {
 		panic(err.Error())
@@ -83,5 +98,8 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-
+	for i := 0; i < len(usersData); i++ {
+		var userInsertQuery = getUserInsertQuery(&usersData[i])
+		executeSqlQuery(connection, userInsertQuery)
+	}
 }
